@@ -20,7 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\APITemplate.Contracts\APITemplate.Contracts.csproj" />
     <ProjectReference Include="..\APITemplate.Data\APITemplate.Data.csproj" />
+    <ProjectReference Include="..\APITemplate.Services\APITemplate.Services.csproj" />
   </ItemGroup>
 
 </Project>

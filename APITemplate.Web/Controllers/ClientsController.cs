@@ -1,4 +1,6 @@
-﻿using APITemplate.Data;
+﻿using APITemplate.Contracts.Interfaces;
+using APITemplate.Contracts.Models;
+using APITemplate.Data;
 using APITemplate.Data.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,87 +14,41 @@ namespace APITemplate.Web.Controllers
 
     public class ClientsController : ControllerBase
     {
-        private readonly MyDbContext _db;
-        public ClientsController(MyDbContext db)
+
+        private readonly ILogger<ClientsController> _logger;
+        private readonly IClientService _clientService;
+
+        public ClientsController(ILogger<ClientsController> logger, IClientService clientService)
         {
-            _db = db;
+            _logger = logger;
+            _clientService = clientService;
         }
 
-        // usando APITemplate.Data.Entities;
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ClientDto>>> Get()
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<ClientDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<ClientDto>>> Get()
         {
-            var items = await _db.Clients
-                .AsNoTracking()
-                .OrderBy(c => c.ClientPk)
-                .Select(c => new ClientDto
-                {
-                    ClientPk = c.ClientPk,
-                    ClientId = c.ClientId,
-                    Name = c.Name,
-                    IsActive = c.IsActive,
-                    CreatedAt = c.CreatedAt
-                })
-                .ToListAsync();
+            _logger.LogInformation("HTTP GET /clients requested");
 
-            return Ok(items);
+            var clients = await _clientService.GetAll();
+
+            return Ok(clients);
         }
 
-        // Request DTO
-        public class CreateClientRequest
+        [HttpGet("{clientPk}")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<ClientDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<ClientDto>>> Get(int clientPk)
         {
-            [Required]
-            [StringLength(200)]
-            public string ClientId { get; set; } = null!;
+            // Llamar al servicio para obtener el cliente moqueado
+            _logger.LogInformation("HTTP GET /clients/{ClientPk} requested", clientPk);
 
-            [StringLength(250)]
-            public string? Name { get; set; }
+            var clientes = await _clientService.GetById(clientPk);
 
-            public bool IsActive { get; set; } = true;
+            return Ok(clientes);
         }
-
-        // Controller POST
-        [HttpPost]
-        public async Task<ActionResult<ClientDto>> Create([FromBody] CreateClientRequest request)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var exists = await _db.Clients.AnyAsync(c => c.ClientId == request.ClientId);
-            if (exists) return Conflict(new { message = "ClientId ya existe." });
-
-            var entity = new Client
-            {
-                ClientId = request.ClientId,
-                Name = request.Name,
-                IsActive = request.IsActive,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _db.Clients.Add(entity);
-            await _db.SaveChangesAsync();
-
-            var dto = new ClientDto
-            {
-                ClientPk = entity.ClientPk,
-                ClientId = entity.ClientId,
-                Name = entity.Name,
-                IsActive = entity.IsActive,
-                CreatedAt = entity.CreatedAt
-            };
-
-            return CreatedAtRoute("GetClientById", new { id = entity.ClientPk }, dto);
-        }
-
-
-        // DTO (si no lo tenés ya)
-        public record ClientDto
-        {
-            public int ClientPk { get; init; }
-            public string ClientId { get; init; } = null!;
-            public string? Name { get; init; }
-            public bool IsActive { get; init; }
-            public DateTime CreatedAt { get; init; }
-        }
-
     }
 }

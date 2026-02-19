@@ -1,4 +1,6 @@
+using APITemplate.Contracts.Interfaces;
 using APITemplate.Data;
+using APITemplate.Services.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,8 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); 
 
 builder.Services.AddDbContext<MyDbContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddScoped<IClientService, ClientService>();
 
 var app = builder.Build();
 
