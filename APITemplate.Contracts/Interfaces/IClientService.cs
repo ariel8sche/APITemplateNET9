@@ -10,7 +10,10 @@ namespace APITemplate.Contracts.Interfaces
     public interface IClientService
     {
         Task<List<ClientDto>> GetAll();
-        // Retorna una lista de clientes o null si no hay datos (mock)
+
         Task<List<ClientDto>> GetById(int id);
+
+        Task<ClientDto> Create(CreateClientDto dto);
+
     }
 }
