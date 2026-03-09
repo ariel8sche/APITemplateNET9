@@ -1,5 +1,5 @@
 using APITemplate.Contracts.Interfaces;
-using APITemplate.Data;
+using APITemplate.Data.NeonDb;
 using APITemplate.Services.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +14,7 @@ builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration.GetConnectionString("NeonDb");
 
-builder.Services.AddDbContext<MyDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<NeonDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IClientService, ClientService>();
 

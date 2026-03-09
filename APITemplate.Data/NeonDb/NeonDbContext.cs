@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using APITemplate.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace APITemplate.Data;
+namespace APITemplate.Data.NeonDb;
 
-public partial class MyDbContext : DbContext
+public partial class NeonDbContext : DbContext
 {
-    public MyDbContext()
+    public NeonDbContext()
     {
     }
 
-    public MyDbContext(DbContextOptions<MyDbContext> options)
+    public NeonDbContext(DbContextOptions<NeonDbContext> options)
         : base(options)
     {
     }

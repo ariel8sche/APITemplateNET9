@@ -1,7 +1,7 @@
 ﻿using APITemplate.Contracts.Interfaces;
 using APITemplate.Contracts.Models;
 using APITemplate.Data;
-using APITemplate.Data.Entities;
+using APITemplate.Data.NeonDb;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

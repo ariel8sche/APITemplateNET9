@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace APITemplate.Data.Entities;
+namespace APITemplate.Data.NeonDb;
 
 public partial class ApiResource
 {

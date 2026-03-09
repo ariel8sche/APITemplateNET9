@@ -1,7 +1,6 @@
 ﻿using APITemplate.Contracts.Interfaces;
 using APITemplate.Contracts.Models;
-using APITemplate.Data;
-using APITemplate.Data.Entities;
+using APITemplate.Data.NeonDb;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -9,11 +8,11 @@ namespace APITemplate.Services.Services
 {
     public class ClientService : IClientService
     {
-        private readonly MyDbContext _db;
+        private readonly NeonDbContext _db;
 
         private readonly ILogger<ClientService> _logger;
 
-        public ClientService(ILogger<ClientService> logger, MyDbContext db)
+        public ClientService(ILogger<ClientService> logger, NeonDbContext db)
         {
             _logger = logger;
             _db = db;
