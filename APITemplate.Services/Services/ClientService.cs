@@ -55,7 +55,7 @@ namespace APITemplate.Services.Services
             return items;
         }
 
-        public async Task<ClientDto> Create(CreateClientDto dto)
+        public async Task<ClientDto> Create(CreateClientRequest dto)
         {
             _logger.LogInformation("Creating new client with ClientId {ClientId}", dto.ClientId);
 
@@ -63,7 +63,7 @@ namespace APITemplate.Services.Services
             {
                 ClientId = dto.ClientId,
                 Name = dto.Name,
-                IsActive = dto.IsActive,
+                IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
 

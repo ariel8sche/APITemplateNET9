@@ -28,13 +28,18 @@ namespace APITemplate.Web.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<ClientDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<ClientDto>>> GetAll ()
+        public async Task<ActionResult<ClientListResponse>> GetAll ()
         {
             _logger.LogInformation("HTTP GET /clients requested");
 
             var clients = await _clientService.GetAll();
 
-            return Ok(clients);
+            var response = new ClientListResponse
+            {
+                Clients = clients
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("{clientPk}")]
@@ -46,15 +51,20 @@ namespace APITemplate.Web.Controllers
             // Llamar al servicio para obtener el cliente moqueado
             _logger.LogInformation("HTTP GET /clients/{ClientPk} requested", clientPk);
 
-            var clientes = await _clientService.GetById(clientPk);
+            var clients = await _clientService.GetById(clientPk);
 
-            return Ok(clientes);
+            var response = new ClientListResponse
+            {
+                Clients = clients
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(ClientDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ClientDto>> Create([FromBody] CreateClientDto dto)
+        public async Task<ActionResult<ClientDto>> Create([FromBody] CreateClientRequest dto)
         {
             _logger.LogInformation("HTTP POST /api/clients requested");
 
@@ -63,10 +73,16 @@ namespace APITemplate.Web.Controllers
 
             var createdClient = await _clientService.Create(dto);
 
+            var response = new CreateClientResponse
+            {
+                Success = true,
+                ClientId = createdClient.ClientId,
+            };
+
             return CreatedAtAction(
                 nameof(GetById),
                 new { clientPk = createdClient.ClientPk },
-                createdClient);
+                response);
         }
     }
 }

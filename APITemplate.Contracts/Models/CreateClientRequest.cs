@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace APITemplate.Contracts.Models
 {
-    public record CreateClientDto
+    public record CreateClientRequest
     {
         [Required]
         public string ClientId { get; set; } = string.Empty;
@@ -15,7 +15,6 @@ namespace APITemplate.Contracts.Models
         [Required]
         public string Name { get; set; } = string.Empty;
 
-        public bool IsActive { get; set; }
     }
 
 }
