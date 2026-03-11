@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace APITemplate.Data.NeonDb;
+namespace APITemplate.Data.AuthModels;
 
 public partial class ApiScope
 {

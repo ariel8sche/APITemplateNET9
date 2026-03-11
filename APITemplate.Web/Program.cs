@@ -1,5 +1,5 @@
 using APITemplate.Contracts.Interfaces;
-using APITemplate.Data.NeonDb;
+using APITemplate.Data.AuthModels;
 using APITemplate.Services.Services;
 using Microsoft.EntityFrameworkCore;
 

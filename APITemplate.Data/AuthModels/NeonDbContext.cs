@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace APITemplate.Data.NeonDb;
+namespace APITemplate.Data.AuthModels;
 
 public partial class NeonDbContext : DbContext
 {
