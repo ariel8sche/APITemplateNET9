@@ -13,7 +13,11 @@ namespace APITemplate.Contracts.Interfaces
 
         Task<List<ClientDto>> GetById(int id);
 
-        Task<ClientDto> Create(CreateClientRequest dto);
+        Task<int> Create(CreateClientRequest dto);
+
+        Task<Boolean> Update(int id, UpdateClientRequest dto);
+
+        Task<Boolean> Delete(int id);
 
     }
 }

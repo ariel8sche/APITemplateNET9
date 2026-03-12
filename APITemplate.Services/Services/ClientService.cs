@@ -55,30 +55,63 @@ namespace APITemplate.Services.Services
             return items;
         }
 
-        public async Task<ClientDto> Create(CreateClientRequest dto)
+        public async Task<int> Create(CreateClientRequest request)
         {
-            _logger.LogInformation("Creating new client with ClientId {ClientId}", dto.ClientId);
+            _logger.LogInformation("Creating new client with ClientId {ClientId}", request.ClientId);
 
-            var entity = new Client
+            var client = new Client
             {
-                ClientId = dto.ClientId,
-                Name = dto.Name,
+                ClientId = request.ClientId,
+                Name = request.Name,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
 
-            _db.Clients.Add(entity);
+            _db.Clients.Add(client);
+
             await _db.SaveChangesAsync();
 
-            return new ClientDto
-            {
-                ClientPk = entity.ClientPk,
-                ClientId = entity.ClientId,
-                Name = entity.Name,
-                IsActive = entity.IsActive,
-                CreatedAt = entity.CreatedAt
-            };
+            return client.ClientPk;
         }
 
+        public async Task<bool> Update(int clientPk, UpdateClientRequest request)
+        {
+            _logger.LogInformation("Updating client with ClientPk {ClientPk}", clientPk);
+
+            var client = await _db.Clients.FirstOrDefaultAsync(e => e.ClientPk == clientPk);
+
+            if (client is null) {
+                _logger.LogWarning("Client with ClientPk {ClientPk} not found", clientPk);
+                return false;
+            }
+
+            client.Name = request.Name;
+            client.ClientId = request.ClientId;
+
+            await _db.SaveChangesAsync();
+
+            _logger.LogInformation("Updated client with ClientPk {ClientPk}", clientPk);
+
+            return true;
+        }
+
+        public async Task<bool> Delete(int clientPk)
+        {
+            _logger.LogInformation("Deleting client with ClientPk {ClientPk}", clientPk);
+
+            var deletedClient = await _db.Clients.FirstOrDefaultAsync(e => e.ClientPk == clientPk);
+
+            if (deletedClient is null) {
+                _logger.LogWarning("Client with ClientPk {ClientPk} not found", clientPk);
+                return false;
+            }
+
+            deletedClient.IsActive = false;
+            await _db.SaveChangesAsync();
+
+            _logger.LogInformation("Deleted client with ClientPk {ClientPk}", clientPk);
+
+            return true;
+        }
     }
 }

@@ -25,9 +25,9 @@ namespace APITemplate.Web.Controllers
 
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(List<ClientDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ClientListResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ClientListResponse>> GetAll ()
+        public async Task<ActionResult<ClientListResponse>> GetAll()
         {
             _logger.LogInformation("HTTP GET /clients requested");
 
@@ -43,9 +43,9 @@ namespace APITemplate.Web.Controllers
 
         [HttpGet("{clientPk}")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(List<ClientDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ClientListResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<ClientDto>>> GetById(int clientPk)
+        public async Task<ActionResult<ClientListResponse>> GetById(int clientPk)
         {
             // Llamar al servicio para obtener el cliente moqueado
             _logger.LogInformation("HTTP GET /clients/{ClientPk} requested", clientPk);
@@ -61,27 +61,67 @@ namespace APITemplate.Web.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(ClientDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CreateClientResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ClientDto>> Create([FromBody] CreateClientRequest dto)
+        public async Task<ActionResult<CreateClientResponse>> Create([FromBody] CreateClientRequest request)
         {
             _logger.LogInformation("HTTP POST /api/clients requested");
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var createdClient = await _clientService.Create(dto);
+            var createdClient = await _clientService.Create(request);
 
             var response = new CreateClientResponse
             {
                 Success = true,
-                ClientId = createdClient.ClientId,
+                ClientPk = createdClient,
             };
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { clientPk = createdClient.ClientPk },
+                new { clientPk = createdClient },
                 response);
+        }
+
+        [HttpPut("{clientPk}")]
+        [ProducesResponseType(typeof(UpdateClientResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UpdateClientResponse>> Update(
+            int clientPk,
+            [FromBody] UpdateClientRequest request)
+        {
+            _logger.LogInformation("HTTP PUT /api/clients/{ClientPk} requested", clientPk);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var updated = await _clientService.Update(clientPk, request);
+
+            if (!updated)
+                return NotFound();
+
+            return Ok(new UpdateClientResponse
+            {
+                Success = true,
+                ClientPk = clientPk
+            });
+        }
+
+        [HttpDelete("{clientPk}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(int clientPk)
+        {
+            _logger.LogInformation("HTTP DELETE /api/clients/{ClientPk} requested", clientPk);
+
+            var deleted = await _clientService.Delete(clientPk);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

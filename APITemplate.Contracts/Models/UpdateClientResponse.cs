@@ -7,13 +7,10 @@ using System.Threading.Tasks;
 
 namespace APITemplate.Contracts.Models
 {
-    public record CreateClientRequest
+    public class UpdateClientResponse
     {
-        [Required]
-        public string ClientId { get; set; }
-
-        [Required]
-        public string Name { get; set; }
+        public int ClientPk { get; set; }
+        public bool Success { get; set; }
 
     }
 

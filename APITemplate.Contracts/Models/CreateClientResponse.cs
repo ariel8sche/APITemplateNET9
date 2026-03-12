@@ -9,7 +9,7 @@ namespace APITemplate.Contracts.Models
 {
     public class CreateClientResponse
     {
-        public string ClientId { get; set; }
+        public int ClientPk { get; set; }
         public bool Success { get; set; }
 
     }
