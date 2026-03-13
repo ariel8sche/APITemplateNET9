@@ -5,15 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APITemplate.Contracts.Models
+namespace APITemplate.Contracts.Requests
 {
-    public record UpdateClientRequest
+    public record UpdateApiResourceRequest
     {
-        [Required]
-        public string ClientId { get; set; } = string.Empty;
 
         [Required]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; }
+
+        [Required]
+        public string Audience { get; set; }
 
     }
 

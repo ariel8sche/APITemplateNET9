@@ -1,5 +1,6 @@
 ﻿using APITemplate.Contracts.Interfaces;
-using APITemplate.Contracts.Models;
+using APITemplate.Contracts.Dtos;
+using APITemplate.Contracts.Requests;
 using APITemplate.Data.AuthModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

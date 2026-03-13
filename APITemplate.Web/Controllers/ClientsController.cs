@@ -1,5 +1,6 @@
 ﻿using APITemplate.Contracts.Interfaces;
-using APITemplate.Contracts.Models;
+using APITemplate.Contracts.Requests;
+using APITemplate.Contracts.Responses;
 using APITemplate.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

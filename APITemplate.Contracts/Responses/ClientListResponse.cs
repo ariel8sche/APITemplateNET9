@@ -1,10 +1,11 @@
-﻿using System;
+﻿using APITemplate.Contracts.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APITemplate.Contracts.Models
+namespace APITemplate.Contracts.Responses
 {
     public class ClientListResponse
     {

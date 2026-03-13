@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace APITemplate.Contracts.Interfaces
 {
-    public interface IClientService
+    public interface IApiResourceService
     {
-        Task<List<ClientDto>> GetAll();
+        Task<List<ApiResourceDto>> GetAll();
 
-        Task<List<ClientDto>> GetById(int id);
+        Task<List<ApiResourceDto>> GetById(int id);
 
-        Task<int> Create(CreateClientRequest dto);
+        Task<int> Create(CreateApiResourceRequest dto);
 
-        Task<bool> Update(int id, UpdateClientRequest dto);
+        Task<bool> Update(int id, UpdateApiResourceRequest dto);
 
         Task<bool> Delete(int id);
 

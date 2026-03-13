@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APITemplate.Contracts.Models
+namespace APITemplate.Contracts.Responses
 {
-    public class CreateClientResponse
+    public class UpdateApiResourceResponse
     {
-        public int ClientPk { get; set; }
+        public int ApiResourcePk { get; set; }
         public bool Success { get; set; }
 
     }
