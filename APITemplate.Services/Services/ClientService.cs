@@ -87,7 +87,7 @@ namespace APITemplate.Services.Services
             }
 
             client.Name = request.Name;
-            client.ClientId = request.ClientId;
+            client.IsActive = request.IsActive;
 
             await _db.SaveChangesAsync();
 

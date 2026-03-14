@@ -19,6 +19,7 @@ builder.Services.AddDbContext<AuthContext>(options => options.UseNpgsql(connecti
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IApiResourceService, ApiResourceService>();
 builder.Services.AddScoped<IApiScopeService, ApiScopeService>();
+builder.Services.AddScoped<IClientScopeGrantService, ClientScopeGrantService>();
 
 var app = builder.Build();
 

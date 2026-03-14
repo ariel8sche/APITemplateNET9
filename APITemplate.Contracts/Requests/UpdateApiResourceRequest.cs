@@ -14,7 +14,7 @@ namespace APITemplate.Contracts.Requests
         public string Name { get; set; }
 
         [Required]
-        public string Audience { get; set; }
+        public bool IsActive { get; set; }
 
     }
 

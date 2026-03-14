@@ -88,7 +88,7 @@ namespace APITemplate.Services.Services
             }
 
             apiResource.Name = request.Name;
-            apiResource.Audience = request.Audience;
+            apiResource.IsActive = request.IsActive;
 
             await _db.SaveChangesAsync();
 

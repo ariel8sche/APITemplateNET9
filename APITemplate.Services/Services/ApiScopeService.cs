@@ -87,8 +87,8 @@ namespace APITemplate.Services.Services
                 return false;
             }
 
-            apiScope.ScopeName = request.ScopeName;
             apiScope.Description = request.Description;
+            apiScope.IsActive = request.IsActive;
 
             await _db.SaveChangesAsync();
 

@@ -7,15 +7,11 @@ using System.Threading.Tasks;
 
 namespace APITemplate.Contracts.Requests
 {
-    public record UpdateApiScopeRequest
+    public record UpdateClientScopeGrantRequest
     {
-
-
-        [Required]
-        public string Description { get; set; }
-
         [Required]
         public bool IsActive { get; set; }
+
     }
 
 }
