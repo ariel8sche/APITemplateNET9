@@ -18,6 +18,7 @@ builder.Services.AddDbContext<NeonDbContext>(options => options.UseNpgsql(connec
 
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IApiResourceService, ApiResourceService>();
+builder.Services.AddScoped<IApiScopeService, ApiScopeService>();
 
 var app = builder.Build();
 
