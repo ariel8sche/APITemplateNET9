@@ -9,11 +9,11 @@ namespace APITemplate.Services.Services
 {
     public class ClientService : IClientService
     {
-        private readonly NeonDbContext _db;
+        private readonly AuthContext _db;
 
         private readonly ILogger<ClientService> _logger;
 
-        public ClientService(ILogger<ClientService> logger, NeonDbContext db)
+        public ClientService(ILogger<ClientService> logger, AuthContext db)
         {
             _logger = logger;
             _db = db;

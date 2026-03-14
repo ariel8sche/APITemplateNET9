@@ -9,11 +9,11 @@ namespace APITemplate.Services.Services
 {
     public class ApiResourceService : IApiResourceService
     {
-        private readonly NeonDbContext _db;
+        private readonly AuthContext _db;
 
         private readonly ILogger<ApiResourceService> _logger;
 
-        public ApiResourceService(ILogger<ApiResourceService> logger, NeonDbContext db)
+        public ApiResourceService(ILogger<ApiResourceService> logger, AuthContext db)
         {
             _logger = logger;
             _db = db;

@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APITemplate.Data.AuthModels;
 
-public partial class NeonDbContext : DbContext
+public partial class AuthContext : DbContext
 {
-    public NeonDbContext()
+    public AuthContext()
     {
     }
 
-    public NeonDbContext(DbContextOptions<NeonDbContext> options)
+    public AuthContext(DbContextOptions<AuthContext> options)
         : base(options)
     {
     }

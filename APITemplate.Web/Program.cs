@@ -14,7 +14,7 @@ builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration.GetConnectionString("NeonDb");
 
-builder.Services.AddDbContext<NeonDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<AuthContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IApiResourceService, ApiResourceService>();
