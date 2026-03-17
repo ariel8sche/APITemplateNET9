@@ -7,15 +7,18 @@ using System.Threading.Tasks;
 
 namespace APITemplate.Contracts.Requests
 {
-    public record UpdateApiScopeRequest
+    public record CreateClientSecretRequest
     {
-
+        [Required]
+        public int ClientPk { get; set; }
 
         [Required]
-        public string Description { get; set; } = null!;
+        public string SecretHash { get; set; } = null!;
 
-        [Required]
-        public bool IsActive { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+
+        public string? Description { get; set; }
+
     }
 
 }

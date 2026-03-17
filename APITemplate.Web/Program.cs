@@ -20,6 +20,7 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IApiResourceService, ApiResourceService>();
 builder.Services.AddScoped<IApiScopeService, ApiScopeService>();
 builder.Services.AddScoped<IClientScopeGrantService, ClientScopeGrantService>();
+builder.Services.AddScoped<IClientSecretService, ClientSecretService>();
 
 var app = builder.Build();
 
