@@ -23,7 +23,7 @@ namespace APITemplate.Services.Services
 
         public async Task<List<ClientSecretDto>> GetById(int clientSecretPk)
         {
-            _logger.LogInformation("GetById: fetching client secret with ClientSecretPk={ClientSecretPk}", clientSecretPk);
+            _logger.LogInformation("GetById: fetching client secret ClientSecretPk={ClientSecretPk}", clientSecretPk);
 
             var clientSecrets = await _db.ClientSecrets
                 .Where(e => e.ClientSecretPk == clientSecretPk)
@@ -41,6 +41,9 @@ namespace APITemplate.Services.Services
 
             _logger.LogDebug("GetById: retrieved {Count} client secret(s) for ClientSecretPk={ClientSecretPk}", clientSecrets.Count, clientSecretPk);
 
+            if (clientSecrets.Count == 0)
+                _logger.LogWarning("GetById: no client secret found for ClientSecretPk={ClientSecretPk}", clientSecretPk);
+
             return clientSecrets;
         }
 
@@ -48,7 +51,7 @@ namespace APITemplate.Services.Services
         {
             _logger.LogInformation("GetAll: fetching all client secrets");
 
-            var clientSecret = await _db.ClientSecrets
+            var clientSecrets = await _db.ClientSecrets
                 .OrderBy(e => e.ClientSecretPk)
                 .Select(e => new ClientSecretDto
                 {
@@ -62,14 +65,14 @@ namespace APITemplate.Services.Services
                 })
                 .ToListAsync();
 
-            _logger.LogDebug("GetAll: retrieved {Count} client secrets", clientSecret.Count);
+            _logger.LogDebug("GetAll: retrieved {Count} client secrets", clientSecrets.Count);
 
-            return clientSecret;
+            return clientSecrets;
         }
 
         public async Task<int> Create(CreateClientSecretRequest request)
         {
-            _logger.LogInformation("Create: creating new client secret for ClientPk={ClientPk}", request.ClientPk);
+            _logger.LogInformation("Create: creating client secret for ClientPk={ClientPk}", request.ClientPk);
 
             var storedHash = ComputeSha256Hash(request.SecretHash);
 
@@ -87,14 +90,15 @@ namespace APITemplate.Services.Services
 
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Create: created client secret with ClientSecretPk={ClientSecretPk} for ClientPk={ClientPk}", clientSecret.ClientSecretPk, clientSecret.ClientPk);
+            _logger.LogInformation("Create: created client secret ClientSecretPk={ClientSecretPk} for ClientPk={ClientPk}", clientSecret.ClientSecretPk, clientSecret.ClientPk);
+            _logger.LogDebug("Create: client secret created at {CreatedAt} ExpiresAt={ExpiresAt}", clientSecret.CreatedAt, clientSecret.ExpiresAt);
 
             return clientSecret.ClientSecretPk;
         }
 
         public async Task<bool> Update(int clientSecretPk, UpdateClientSecretRequest request)
         {
-            _logger.LogInformation("Update: updating client secret with ClientSecretPk={ClientSecretPk}", clientSecretPk);
+            _logger.LogInformation("Update: updating client secret ClientSecretPk={ClientSecretPk}", clientSecretPk);
 
             var client = await _db.ClientSecrets.FirstOrDefaultAsync(e => e.ClientSecretPk == clientSecretPk);
 
@@ -115,15 +119,15 @@ namespace APITemplate.Services.Services
 
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Update: updated client secret ClientSecretPk={ClientSecretPk} (IsRevoked={IsRevoked}, ExpiresAt={ExpiresAt}, IsExpired={IsExpired})",
-                clientSecretPk, client.IsRevoked, client.ExpiresAt, isExpired);
+            _logger.LogInformation("Update: updated client secret ClientSecretPk={ClientSecretPk} (IsRevoked={IsRevoked})", clientSecretPk, client.IsRevoked);
+            _logger.LogDebug("Update: ExpiresAt={ExpiresAt} IsExpired={IsExpired}", client.ExpiresAt, isExpired);
 
             return true;
         }
 
         public async Task<bool> Delete(int clientSecretPk)
         {
-            _logger.LogInformation("Delete: revoking client secret with ClientSecretPk={ClientSecretPk}", clientSecretPk);
+            _logger.LogInformation("Delete: revoking client secret ClientSecretPk={ClientSecretPk}", clientSecretPk);
 
             var deletedClient = await _db.ClientSecrets.FirstOrDefaultAsync(e => e.ClientSecretPk == clientSecretPk);
 

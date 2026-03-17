@@ -31,13 +31,15 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiScopeListResponse>> GetAll()
         {
-            _logger.LogInformation("HTTP GET /apiScope requested");
+            _logger.LogInformation("GetAll: fetching all API scopes");
 
-            var apiScope = await _apiScopeService.GetAll();
+            var apiScopes = await _apiScopeService.GetAll();
+
+            _logger.LogDebug("GetAll: retrieved {Count} api scopes", apiScopes.Count);
 
             var response = new ApiScopeListResponse
             {
-                ApiScopes = apiScope
+                ApiScopes = apiScopes
             };
 
             return Ok(response);
@@ -49,14 +51,15 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiScopeListResponse>> GetById(int apiScopePk)
         {
-            // Llamar al servicio para obtener el api Scope moqueado
-            _logger.LogInformation("HTTP GET /apiScope/{ApiScopePk} requested", apiScopePk);
+            _logger.LogInformation("GetById: fetching API scope with ApiScopePk={ApiScopePk}", apiScopePk);
 
-            var apiScope = await _apiScopeService.GetById(apiScopePk);
+            var apiScopes = await _apiScopeService.GetById(apiScopePk);
+
+            _logger.LogDebug("GetById: retrieved {Count} api scopes for ApiScopePk={ApiScopePk}", apiScopes.Count, apiScopePk);
 
             var response = new ApiScopeListResponse
             {
-                ApiScopes = apiScope
+                ApiScopes = apiScopes
             };
 
             return Ok(response);
@@ -67,12 +70,14 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CreateApiScopeResponse>> Create([FromBody] CreateApiScopeRequest request)
         {
-            _logger.LogInformation("HTTP POST /api/apiScope requested");
+            _logger.LogInformation("Create: HTTP POST /api/apiscopes requested for ApiResourcePk={ApiResourcePk} ScopeName={ScopeName}", request.ApiResourcePk, request.ScopeName);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var createdApiScope = await _apiScopeService.Create(request);
+
+            _logger.LogInformation("Create: created API scope ApiScopePk={ApiScopePk} for ApiResourcePk={ApiResourcePk} ScopeName={ScopeName}", createdApiScope, request.ApiResourcePk, request.ScopeName);
 
             var response = new CreateApiScopeResponse
             {
@@ -94,7 +99,7 @@ namespace APITemplate.Web.Controllers
             int apiScopePk,
             [FromBody] UpdateApiScopeRequest request)
         {
-            _logger.LogInformation("HTTP PUT /api/apiScope/{ApiScopePk} requested", apiScopePk);
+            _logger.LogInformation("Update: HTTP PUT /api/apiscopes/{ApiScopePk} requested", apiScopePk);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -102,7 +107,12 @@ namespace APITemplate.Web.Controllers
             var updated = await _apiScopeService.Update(apiScopePk, request);
 
             if (!updated)
+            {
+                _logger.LogWarning("Update: API scope not found ApiScopePk={ApiScopePk}", apiScopePk);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Update: updated API scope ApiScopePk={ApiScopePk} (IsActive={IsActive})", apiScopePk, request.IsActive);
 
             return Ok(new UpdateApiScopeResponse
             {
@@ -116,12 +126,17 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int apiScopePk)
         {
-            _logger.LogInformation("HTTP DELETE /api/apiScope/{apiScopePk} requested", apiScopePk);
+            _logger.LogInformation("Delete: HTTP DELETE /api/apiscopes/{ApiScopePk} requested", apiScopePk);
 
             var deleted = await _apiScopeService.Delete(apiScopePk);
 
             if (!deleted)
+            {
+                _logger.LogWarning("Delete: API scope not found ApiScopePk={ApiScopePk}", apiScopePk);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Delete: removed API scope ApiScopePk={ApiScopePk}", apiScopePk);
 
             return NoContent();
         }

@@ -21,9 +21,9 @@ namespace APITemplate.Services.Services
 
         public async Task<List<ClientDto>> GetById(int clientPk)
         {
-            _logger.LogInformation("Fetching client with ClientPk {ClientPk}", clientPk);
+            _logger.LogInformation("GetById: fetching client ClientPk={ClientPk}", clientPk);
 
-            var client = await _db.Clients
+            var clients = await _db.Clients
                 .Where(e => e.ClientPk == clientPk)
                 .Select(e => new ClientDto
                 {
@@ -34,12 +34,21 @@ namespace APITemplate.Services.Services
                 })
                 .ToListAsync();
 
-            return client;
+            if (clients is null || clients.Count == 0)
+            {
+                _logger.LogWarning("GetById: no client found for ClientPk={ClientPk}", clientPk);
+            }
+            else
+            {
+                _logger.LogDebug("GetById: retrieved {Count} client(s) for ClientPk={ClientPk}", clients.Count, clientPk);
+            }
+
+            return clients;
         }
 
         public async Task<List<ClientDto>> GetAll()
         {
-            _logger.LogInformation("Fetching all clients");
+            _logger.LogInformation("GetAll: fetching all clients");
 
             var items = await _db.Clients
                 .OrderBy(c => c.ClientPk)
@@ -53,12 +62,14 @@ namespace APITemplate.Services.Services
                 })
                 .ToListAsync();
 
+            _logger.LogDebug("GetAll: retrieved {Count} clients", items?.Count ?? 0);
+
             return items;
         }
 
         public async Task<int> Create(CreateClientRequest request)
         {
-            _logger.LogInformation("Creating new client with ClientId {ClientId}", request.ClientId);
+            _logger.LogInformation("Create: creating client ClientId={ClientId}", request.ClientId);
 
             var client = new Client
             {
@@ -72,17 +83,19 @@ namespace APITemplate.Services.Services
 
             await _db.SaveChangesAsync();
 
+            _logger.LogInformation("Create: created client ClientPk={ClientPk} ClientId={ClientId}", client.ClientPk, client.ClientId);
+
             return client.ClientPk;
         }
 
         public async Task<bool> Update(int clientPk, UpdateClientRequest request)
         {
-            _logger.LogInformation("Updating client with ClientPk {ClientPk}", clientPk);
+            _logger.LogInformation("Update: updating client ClientPk={ClientPk}", clientPk);
 
             var client = await _db.Clients.FirstOrDefaultAsync(e => e.ClientPk == clientPk);
 
             if (client is null) {
-                _logger.LogWarning("Client with ClientPk {ClientPk} not found", clientPk);
+                _logger.LogWarning("Update: client not found ClientPk={ClientPk}", clientPk);
                 return false;
             }
 
@@ -91,26 +104,26 @@ namespace APITemplate.Services.Services
 
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Updated client with ClientPk {ClientPk}", clientPk);
+            _logger.LogInformation("Update: updated client ClientPk={ClientPk} (IsActive={IsActive})", clientPk, request.IsActive);
 
             return true;
         }
 
         public async Task<bool> Delete(int clientPk)
         {
-            _logger.LogInformation("Deleting client with ClientPk {ClientPk}", clientPk);
+            _logger.LogInformation("Delete: deactivating client ClientPk={ClientPk}", clientPk);
 
             var deletedClient = await _db.Clients.FirstOrDefaultAsync(e => e.ClientPk == clientPk);
 
             if (deletedClient is null) {
-                _logger.LogWarning("Client with ClientPk {ClientPk} not found", clientPk);
+                _logger.LogWarning("Delete: client not found ClientPk={ClientPk}", clientPk);
                 return false;
             }
 
             deletedClient.IsActive = false;
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Deleted client with ClientPk {ClientPk}", clientPk);
+            _logger.LogInformation("Delete: deactivated client ClientPk={ClientPk}", clientPk);
 
             return true;
         }

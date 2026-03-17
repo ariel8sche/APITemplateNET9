@@ -30,9 +30,11 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ClientListResponse>> GetAll()
         {
-            _logger.LogInformation("HTTP GET /clients requested");
+            _logger.LogInformation("GetAll: fetching all clients");
 
             var clients = await _clientService.GetAll();
+
+            _logger.LogDebug("GetAll: retrieved {Count} clients", clients?.Count ?? 0);
 
             var response = new ClientListResponse
             {
@@ -48,10 +50,14 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ClientListResponse>> GetById(int clientPk)
         {
-            // Llamar al servicio para obtener el cliente moqueado
-            _logger.LogInformation("HTTP GET /clients/{ClientPk} requested", clientPk);
+            _logger.LogInformation("GetById: fetching client with ClientPk={ClientPk}", clientPk);
 
             var clients = await _clientService.GetById(clientPk);
+
+            if (clients is null || clients.Count == 0)
+                _logger.LogWarning("GetById: no client found for ClientPk={ClientPk}", clientPk);
+            else
+                _logger.LogDebug("GetById: retrieved {Count} client(s) for ClientPk={ClientPk}", clients.Count, clientPk);
 
             var response = new ClientListResponse
             {
@@ -66,12 +72,17 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CreateClientResponse>> Create([FromBody] CreateClientRequest request)
         {
-            _logger.LogInformation("HTTP POST /api/clients requested");
+            _logger.LogInformation("Create: HTTP POST /api/clients requested (ClientId={ClientId})", request.ClientId);
 
             if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Create: invalid model state for ClientId={ClientId}", request.ClientId);
                 return BadRequest(ModelState);
+            }
 
             var createdClient = await _clientService.Create(request);
+
+            _logger.LogInformation("Create: created client ClientPk={ClientPk} ClientId={ClientId}", createdClient, request.ClientId);
 
             var response = new CreateClientResponse
             {
@@ -93,15 +104,23 @@ namespace APITemplate.Web.Controllers
             int clientPk,
             [FromBody] UpdateClientRequest request)
         {
-            _logger.LogInformation("HTTP PUT /api/clients/{ClientPk} requested", clientPk);
+            _logger.LogInformation("Update: HTTP PUT /api/clients/{ClientPk} requested", clientPk);
 
             if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Update: invalid model state for ClientPk={ClientPk}", clientPk);
                 return BadRequest(ModelState);
+            }
 
             var updated = await _clientService.Update(clientPk, request);
 
             if (!updated)
+            {
+                _logger.LogWarning("Update: client not found ClientPk={ClientPk}", clientPk);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Update: updated client ClientPk={ClientPk} (IsActive={IsActive})", clientPk, request.IsActive);
 
             return Ok(new UpdateClientResponse
             {
@@ -115,12 +134,17 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int clientPk)
         {
-            _logger.LogInformation("HTTP DELETE /api/clients/{ClientPk} requested", clientPk);
+            _logger.LogInformation("Delete: HTTP DELETE /api/clients/{ClientPk} requested", clientPk);
 
             var deleted = await _clientService.Delete(clientPk);
 
             if (!deleted)
+            {
+                _logger.LogWarning("Delete: client not found ClientPk={ClientPk}", clientPk);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Delete: deleted client ClientPk={ClientPk}", clientPk);
 
             return NoContent();
         }

@@ -31,9 +31,11 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ClientScopeGrantListResponse>> GetAll()
         {
-            _logger.LogInformation("HTTP GET /ClientScopeGrant requested");
+            _logger.LogInformation("GetAll: fetching all client scope grants");
 
             var clientScopeGrant = await _clientScopeGrantService.GetAll();
+
+            _logger.LogDebug("GetAll: retrieved {Count} client scope grants", clientScopeGrant.Count);
 
             var response = new ClientScopeGrantListResponse
             {
@@ -49,10 +51,11 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ClientScopeGrantListResponse>> GetById(int clientScopeGrantPk)
         {
-            // Llamar al servicio para obtener el client scope grant moqueado
-            _logger.LogInformation("HTTP GET /clientScopeGrant/{clientScopeGrantPk} requested", clientScopeGrantPk);
+            _logger.LogInformation("GetById: fetching client scope grant with GrantPk={ClientScopeGrantPk}", clientScopeGrantPk);
 
             var clientScopeGrant = await _clientScopeGrantService.GetById(clientScopeGrantPk);
+
+            _logger.LogDebug("GetById: retrieved {Count} client scope grants for GrantPk={ClientScopeGrantPk}", clientScopeGrant.Count, clientScopeGrantPk);
 
             var response = new ClientScopeGrantListResponse
             {
@@ -67,12 +70,14 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CreateClientScopeGrantResponse>> Create([FromBody] CreateClientScopeGrantRequest request)
         {
-            _logger.LogInformation("HTTP POST /api/clientScopeGrant requested");
+            _logger.LogInformation("Create: HTTP POST /api/clientscopegrants requested for ClientPk={ClientPk} ScopePk={ScopePk}", request.ClientPk, request.ScopePk);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var createdClientScopeGrant = await _clientScopeGrantService.Create(request);
+
+            _logger.LogInformation("Create: created client scope grant GrantPk={GrantPk} for ClientPk={ClientPk} ScopePk={ScopePk}", createdClientScopeGrant, request.ClientPk, request.ScopePk);
 
             var response = new CreateClientScopeGrantResponse
             {
@@ -82,7 +87,7 @@ namespace APITemplate.Web.Controllers
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { ClientScopeGrantPk = createdClientScopeGrant },
+                new { clientScopeGrantPk = createdClientScopeGrant },
                 response);
         }
 
@@ -94,7 +99,7 @@ namespace APITemplate.Web.Controllers
             int clientScopeGrantPk,
             [FromBody] UpdateClientScopeGrantRequest request)
         {
-            _logger.LogInformation("HTTP PUT /api/clientScopeGrant/{clientScopeGrantPk} requested", clientScopeGrantPk);
+            _logger.LogInformation("Update: HTTP PUT /api/clientscopegrants/{GrantPk} requested for GrantPk={ClientScopeGrantPk}", clientScopeGrantPk, clientScopeGrantPk);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -102,7 +107,12 @@ namespace APITemplate.Web.Controllers
             var updated = await _clientScopeGrantService.Update(clientScopeGrantPk, request);
 
             if (!updated)
+            {
+                _logger.LogWarning("Update: client scope grant not found GrantPk={ClientScopeGrantPk}", clientScopeGrantPk);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Update: updated client scope grant GrantPk={ClientScopeGrantPk} (IsActive={IsActive})", clientScopeGrantPk, request.IsActive);
 
             return Ok(new UpdateClientScopeGrantResponse
             {
@@ -116,12 +126,17 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int clientScopeGrantPk)
         {
-            _logger.LogInformation("HTTP DELETE /api/clientScopeGrant/{clientScopeGrantPk} requested", clientScopeGrantPk);
+            _logger.LogInformation("Delete: HTTP DELETE /api/clientscopegrants/{clientScopeGrantPk} requested for GrantPk={ClientScopeGrantPk}", clientScopeGrantPk, clientScopeGrantPk);
 
             var deleted = await _clientScopeGrantService.Delete(clientScopeGrantPk);
 
             if (!deleted)
+            {
+                _logger.LogWarning("Delete: client scope grant not found GrantPk={ClientScopeGrantPk}", clientScopeGrantPk);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Delete: removed client scope grant GrantPk={ClientScopeGrantPk}", clientScopeGrantPk);
 
             return NoContent();
         }

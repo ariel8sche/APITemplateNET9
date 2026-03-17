@@ -31,13 +31,15 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResourceListResponse>> GetAll()
         {
-            _logger.LogInformation("HTTP GET /apiResource requested");
+            _logger.LogInformation("GetAll: fetching all API resources");
 
-            var apiResource = await _apiResourceService.GetAll();
+            var apiResources = await _apiResourceService.GetAll();
+
+            _logger.LogDebug("GetAll: retrieved {Count} api resources", apiResources?.Count ?? 0);
 
             var response = new ApiResourceListResponse
             {
-                ApiResources = apiResource
+                ApiResources = apiResources
             };
 
             return Ok(response);
@@ -49,14 +51,22 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResourceListResponse>> GetById(int apiResourcePk)
         {
-            // Llamar al servicio para obtener el api resource moqueado
-            _logger.LogInformation("HTTP GET /apiResource/{ApiResourcePk} requested", apiResourcePk);
+            _logger.LogInformation("GetById: fetching API resource ApiResourcePk={ApiResourcePk}", apiResourcePk);
 
-            var apiResource = await _apiResourceService.GetById(apiResourcePk);
+            var apiResources = await _apiResourceService.GetById(apiResourcePk);
+
+            if (apiResources is null || apiResources.Count == 0)
+            {
+                _logger.LogWarning("GetById: no API resource found for ApiResourcePk={ApiResourcePk}", apiResourcePk);
+            }
+            else
+            {
+                _logger.LogDebug("GetById: retrieved {Count} api resource(s) for ApiResourcePk={ApiResourcePk}", apiResources.Count, apiResourcePk);
+            }
 
             var response = new ApiResourceListResponse
             {
-                ApiResources = apiResource
+                ApiResources = apiResources
             };
 
             return Ok(response);
@@ -67,12 +77,17 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CreateApiResourceResponse>> Create([FromBody] CreateApiResourceRequest request)
         {
-            _logger.LogInformation("HTTP POST /api/apiResource requested");
+            _logger.LogInformation("Create: HTTP POST /api/apiresources requested (Name={Name})", request.Name);
 
             if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Create: invalid model state for API resource Name={Name}", request.Name);
                 return BadRequest(ModelState);
+            }
 
             var createdApiResource = await _apiResourceService.Create(request);
+
+            _logger.LogInformation("Create: created API resource ApiResourcePk={ApiResourcePk} Name={Name}", createdApiResource, request.Name);
 
             var response = new CreateApiResourceResponse
             {
@@ -94,15 +109,23 @@ namespace APITemplate.Web.Controllers
             int apiResourcePk,
             [FromBody] UpdateApiResourceRequest request)
         {
-            _logger.LogInformation("HTTP PUT /api/apiResource/{ApiResourcePk} requested", apiResourcePk);
+            _logger.LogInformation("Update: HTTP PUT /api/apiresources/{ApiResourcePk} requested", apiResourcePk);
 
             if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Update: invalid model state for ApiResourcePk={ApiResourcePk}", apiResourcePk);
                 return BadRequest(ModelState);
+            }
 
             var updated = await _apiResourceService.Update(apiResourcePk, request);
 
             if (!updated)
+            {
+                _logger.LogWarning("Update: API resource not found ApiResourcePk={ApiResourcePk}", apiResourcePk);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Update: updated API resource ApiResourcePk={ApiResourcePk} (IsActive={IsActive})", apiResourcePk, request.IsActive);
 
             return Ok(new UpdateApiResourceResponse
             {
@@ -116,12 +139,17 @@ namespace APITemplate.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int apiResourcePk)
         {
-            _logger.LogInformation("HTTP DELETE /api/apiResource/{apiResourcePk} requested", apiResourcePk);
+            _logger.LogInformation("Delete: HTTP DELETE /api/apiresources/{ApiResourcePk} requested", apiResourcePk);
 
             var deleted = await _apiResourceService.Delete(apiResourcePk);
 
             if (!deleted)
+            {
+                _logger.LogWarning("Delete: API resource not found ApiResourcePk={ApiResourcePk}", apiResourcePk);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Delete: deactivated API resource ApiResourcePk={ApiResourcePk}", apiResourcePk);
 
             return NoContent();
         }

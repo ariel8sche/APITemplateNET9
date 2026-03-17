@@ -21,7 +21,7 @@ namespace APITemplate.Services.Services
 
         public async Task<List<ApiResourceDto>> GetById(int ApiResourcePk)
         {
-            _logger.LogInformation("Fetching api resource with ApiResourcePk {ApiResourcePk}", ApiResourcePk);
+            _logger.LogInformation("GetById: fetching API resource ApiResourcePk={ApiResourcePk}", ApiResourcePk);
 
             var apiResource = await _db.ApiResources
                 .Where(e => e.ApiResourcePk == ApiResourcePk)
@@ -35,12 +35,19 @@ namespace APITemplate.Services.Services
                 })
                 .ToListAsync();
 
+            _logger.LogDebug("GetById: retrieved {Count} api resource(s) for ApiResourcePk={ApiResourcePk}", apiResource.Count, ApiResourcePk);
+
+            if (apiResource is null || apiResource.Count == 0)
+            {
+                _logger.LogWarning("GetById: no API resource found for ApiResourcePk={ApiResourcePk}", ApiResourcePk);
+            }
+
             return apiResource;
         }
 
         public async Task<List<ApiResourceDto>> GetAll()
         {
-            _logger.LogInformation("Fetching all api resources");
+            _logger.LogInformation("GetAll: fetching all API resources");
 
             var items = await _db.ApiResources
                 .OrderBy(e => e.ApiResourcePk)
@@ -54,12 +61,14 @@ namespace APITemplate.Services.Services
                 })
                 .ToListAsync();
 
+            _logger.LogDebug("GetAll: retrieved {Count} api resources", items.Count);
+
             return items;
         }
 
         public async Task<int> Create(CreateApiResourceRequest request)
         {
-            _logger.LogInformation("Creating new api resource with Name {Name}", request.Name);
+            _logger.LogInformation("Create: creating API resource Name={Name}", request.Name);
 
             var apiResource = new ApiResource
             {
@@ -73,17 +82,19 @@ namespace APITemplate.Services.Services
 
             await _db.SaveChangesAsync();
 
+            _logger.LogInformation("Create: created API resource ApiResourcePk={ApiResourcePk} Name={Name}", apiResource.ApiResourcePk, apiResource.Name);
+
             return apiResource.ApiResourcePk;
         }
 
         public async Task<bool> Update(int apiResourcePk, UpdateApiResourceRequest request)
         {
-            _logger.LogInformation("Updating api resource with ApiResourcePk {ApiResourcePk}", apiResourcePk);
+            _logger.LogInformation("Update: updating API resource ApiResourcePk={ApiResourcePk}", apiResourcePk);
 
             var apiResource = await _db.ApiResources.FirstOrDefaultAsync(e => e.ApiResourcePk == apiResourcePk);
 
             if (apiResource is null) {
-                _logger.LogWarning("Api resource with ApiResourcePk {ApiResourcePk} not found", apiResourcePk);
+                _logger.LogWarning("Update: API resource not found ApiResourcePk={ApiResourcePk}", apiResourcePk);
                 return false;
             }
 
@@ -92,26 +103,26 @@ namespace APITemplate.Services.Services
 
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Updated api resource with ApiResourcePk {ApiResourcePk}", apiResourcePk);
+            _logger.LogInformation("Update: updated API resource ApiResourcePk={ApiResourcePk} (IsActive={IsActive})", apiResourcePk, request.IsActive);
 
             return true;
         }
 
         public async Task<bool> Delete(int apiResourcePk)
         {
-            _logger.LogInformation("Deleting api resource with ApiResourcePk {ApiResourcePk}", apiResourcePk);
+            _logger.LogInformation("Delete: deactivating API resource ApiResourcePk={ApiResourcePk}", apiResourcePk);
 
             var deletedApiResource = await _db.ApiResources.FirstOrDefaultAsync(e => e.ApiResourcePk == apiResourcePk);
 
             if (deletedApiResource is null) {
-                _logger.LogWarning("Api resource with ApiResourcePk {ApiResourcePk} not found", apiResourcePk);
+                _logger.LogWarning("Delete: API resource not found ApiResourcePk={ApiResourcePk}", apiResourcePk);
                 return false;
             }
 
             deletedApiResource.IsActive = false;
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Deleted api resource with ApiResourcePk {ApiResourcePk}", apiResourcePk);
+            _logger.LogInformation("Delete: deactivated API resource ApiResourcePk={ApiResourcePk}", apiResourcePk);
 
             return true;
         }

@@ -21,7 +21,7 @@ namespace APITemplate.Services.Services
 
         public async Task<List<ApiScopeDto>> GetById(int apiScopePk)
         {
-            _logger.LogInformation("Fetching api scope with ApiScopePk {ApiScopePk}", apiScopePk);
+            _logger.LogInformation("GetById: fetching API scope ApiScopePk={ApiScopePk}", apiScopePk);
 
             var apiScope = await _db.ApiScopes
                 .Where(e => e.ScopePk == apiScopePk)
@@ -35,12 +35,19 @@ namespace APITemplate.Services.Services
                 })
                 .ToListAsync();
 
+            _logger.LogDebug("GetById: retrieved {Count} api scope(s) for ApiScopePk={ApiScopePk}", apiScope.Count, apiScopePk);
+
+            if (apiScope is null || apiScope.Count == 0)
+            {
+                _logger.LogWarning("GetById: no API scope found for ApiScopePk={ApiScopePk}", apiScopePk);
+            }
+
             return apiScope;
         }
 
         public async Task<List<ApiScopeDto>> GetAll()
         {
-            _logger.LogInformation("Fetching all api Scopes");
+            _logger.LogInformation("GetAll: fetching all API scopes");
 
             var items = await _db.ApiScopes
                 .OrderBy(e => e.ScopePk)
@@ -54,12 +61,14 @@ namespace APITemplate.Services.Services
                 })
                 .ToListAsync();
 
+            _logger.LogDebug("GetAll: retrieved {Count} api scopes", items.Count);
+
             return items;
         }
 
         public async Task<int> Create(CreateApiScopeRequest request)
         {
-            _logger.LogInformation("Creating new api scope with ScopeName {ScopeName}", request.ScopeName);
+            _logger.LogInformation("Create: creating API scope ScopeName={ScopeName} ApiResourcePk={ApiResourcePk}", request.ScopeName, request.ApiResourcePk);
 
             var apiScope = new ApiScope
             {
@@ -73,17 +82,19 @@ namespace APITemplate.Services.Services
 
             await _db.SaveChangesAsync();
 
+            _logger.LogInformation("Create: created API scope ScopePk={ScopePk} ScopeName={ScopeName}", apiScope.ScopePk, apiScope.ScopeName);
+
             return apiScope.ScopePk;
         }
 
         public async Task<bool> Update(int apiScopePk, UpdateApiScopeRequest request)
         {
-            _logger.LogInformation("Updating api scope with ApiScopePk {ApiScopePk}", apiScopePk);
+            _logger.LogInformation("Update: updating API scope ApiScopePk={ApiScopePk}", apiScopePk);
 
             var apiScope = await _db.ApiScopes.FirstOrDefaultAsync(e => e.ScopePk == apiScopePk);
 
             if (apiScope is null) {
-                _logger.LogWarning("Api scope with ApiScopePk {ApiScopePk} not found", apiScopePk);
+                _logger.LogWarning("Update: API scope not found ApiScopePk={ApiScopePk}", apiScopePk);
                 return false;
             }
 
@@ -92,26 +103,26 @@ namespace APITemplate.Services.Services
 
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Updated api scope with ApiScopePk {ApiScopePk}", apiScopePk);
+            _logger.LogInformation("Update: updated API scope ApiScopePk={ApiScopePk} (IsActive={IsActive})", apiScopePk, request.IsActive);
 
             return true;
         }
 
         public async Task<bool> Delete(int apiScopePk)
         {
-            _logger.LogInformation("Deleting api scope with ApiScopePk {ApiScopePk}", apiScopePk);
+            _logger.LogInformation("Delete: deactivating API scope ApiScopePk={ApiScopePk}", apiScopePk);
 
             var deletedApiScope = await _db.ApiScopes.FirstOrDefaultAsync(e => e.ScopePk == apiScopePk);
 
             if (deletedApiScope is null) {
-                _logger.LogWarning("Api scope with ApiScopePk {ApiScopePk} not found", apiScopePk);
+                _logger.LogWarning("Delete: API scope not found ApiScopePk={ApiScopePk}", apiScopePk);
                 return false;
             }
 
             deletedApiScope.IsActive = false;
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Deleted api Scope with ApiScopePk {ApiScopePk}", apiScopePk);
+            _logger.LogInformation("Delete: deactivated API scope ApiScopePk={ApiScopePk}", apiScopePk);
 
             return true;
         }
