@@ -25,8 +25,44 @@ public partial class AuthContext : DbContext
 
     public virtual DbSet<ClientSecret> ClientSecrets { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("user");
+
+            entity.HasKey(e => e.UserId).HasName("user_pkey");
+
+            entity.HasIndex(e => e.Username, "ux_user_username").IsUnique();
+            entity.HasIndex(e => e.Email, "ux_user_email").IsUnique();
+
+            entity.Property(e => e.UserId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("user_id");
+
+            entity.Property(e => e.Username)
+                .HasMaxLength(100)
+                .HasColumnName("username");
+
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(256)
+                .HasColumnName("password_hash");
+
+            entity.Property(e => e.Email)
+                .HasMaxLength(200)
+                .HasColumnName("email");
+
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at");
+        });
+
         modelBuilder.Entity<ApiResource>(entity =>
         {
             entity.HasKey(e => e.ApiResourcePk).HasName("api_resource_pkey");
