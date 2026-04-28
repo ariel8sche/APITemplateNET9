@@ -76,6 +76,11 @@ namespace APITemplate.Services.Services
         {
             _logger.LogInformation("Create: creating user Username={Username}", request.Username);
 
+            if (await _db.Users.AnyAsync(u => u.Email == request.Email))
+            {
+                throw new InvalidOperationException("El email ya está registrado");
+            }
+
             var passwordHash = ComputeSha256Hash(request.Password);
 
             var user = new User
@@ -89,7 +94,26 @@ namespace APITemplate.Services.Services
 
             _db.Users.Add(user);
 
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                var message = ex.InnerException?.Message ?? "";
+
+                if (message.Contains("ux_user_email"))
+                {
+                    throw new InvalidOperationException("El email ya está registrado");
+                }
+
+                if (message.Contains("ux_user_username"))
+                {
+                    throw new InvalidOperationException("El username ya está en uso");
+                }
+
+                throw;
+            }
 
             _logger.LogInformation("Create: created user UserId={UserId} Username={Username}", user.UserId, user.Username);
 
@@ -139,8 +163,6 @@ namespace APITemplate.Services.Services
 
             return true;
         }
-
-        // Helpers
 
         private static string ComputeSha256Hash(string password)
         {
