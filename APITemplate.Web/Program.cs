@@ -22,6 +22,7 @@ builder.Services.AddScoped<IApiScopeService, ApiScopeService>();
 builder.Services.AddScoped<IClientScopeGrantService, ClientScopeGrantService>();
 builder.Services.AddScoped<IClientSecretService, ClientSecretService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAccessTokenService, AccessTokenService>();
 
 var app = builder.Build();
 

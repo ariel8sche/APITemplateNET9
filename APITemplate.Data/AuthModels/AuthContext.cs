@@ -27,8 +27,53 @@ public partial class AuthContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<AccessToken> AccessTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AccessToken>(entity =>
+        {
+            entity.ToTable("access_token");
+
+            entity.HasKey(e => e.AccessTokenId)
+                .HasName("access_token_pkey");
+
+            entity.Property(e => e.AccessTokenId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("access_token_id");
+
+            entity.Property(e => e.UserId)
+                .HasColumnName("user_id");
+
+            entity.Property(e => e.ClientPk)
+                .HasColumnName("client_pk");
+
+            entity.Property(e => e.Token)
+                .HasMaxLength(512)
+                .HasColumnName("token");
+
+            entity.Property(e => e.ExpiresAt)
+                .HasColumnName("expires_at");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at");
+
+            entity.Property(e => e.IsRevoked)
+                .HasDefaultValue(false)
+                .HasColumnName("is_revoked");
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("fk_access_token_user");
+
+            entity.HasOne(d => d.Client)
+                .WithMany()
+                .HasForeignKey(d => d.ClientPk)
+                .HasConstraintName("fk_access_token_client");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.ToTable("user");
